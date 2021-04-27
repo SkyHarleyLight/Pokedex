@@ -2,6 +2,7 @@ package com.example.pokedex.data
 
 import com.example.pokedex.domain.PokemonEntity
 import com.example.pokedex.domain.PokemonRepository
+import io.reactivex.Single
 
 class MockPokemonRepository: PokemonRepository {
     private val items = mutableListOf<PokemonEntity>(
@@ -12,10 +13,17 @@ class MockPokemonRepository: PokemonRepository {
         PokemonEntity("5", "charmeleon", generateUrlFromId(5))
     )
 
-    override fun getPokemonList(): List<PokemonEntity> = items
+    override fun getPokemonList(): Single<List<PokemonEntity>> =
+            Single.just(items)
 
-    override fun addNewPokemon(pokemon: PokemonEntity) {
-        items.add(pokemon)
+    override fun getPokemonById(id: String): Single<PokemonEntity> {
+        val pokemon = items.find { it.id == id }
+
+        return if(pokemon != null){
+            Single.just(pokemon)
+        } else {
+            Single.error(Throwable("Not found"))
+        }
     }
 
     private fun generateUrlFromId(id: Int): String = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/$id.png"

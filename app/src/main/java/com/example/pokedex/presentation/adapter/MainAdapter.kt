@@ -9,40 +9,78 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.pokedex.R
 import com.example.pokedex.domain.PokemonEntity
+import java.lang.IllegalStateException
 
-class MainAdapter: RecyclerView.Adapter<MainAdapter.MainViewHolder>() {
-    private val items: MutableList<PokemonEntity> = emptyList<PokemonEntity>().toMutableList()
+private const val ITEM_TYPE_UNKNOWN = 0
+private const val ITEM_TYPE_POKEMON = 1
+private const val ITEM_TYPE_HEADER = 2
 
-    fun setPokemonList(pokemons: List<PokemonEntity>){
+class MainAdapter: RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+    private val items: MutableList<DisplayableItem> = emptyList<DisplayableItem>().toMutableList()
+
+    fun setPokemonList(pokemons: List<DisplayableItem>){
         items.clear()
         items.addAll(pokemons)
         notifyDataSetChanged()
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MainAdapter.MainViewHolder {
-        val view = LayoutInflater.from(parent.context)
-            .inflate(R.layout.main_item, parent, false)
-        return MainViewHolder(view)
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
+        return when(viewType) {
+            ITEM_TYPE_POKEMON -> {
+                val view = LayoutInflater.from(parent.context)
+                        .inflate(R.layout.main_item, parent, false)
+                PokemonViewHolder(view)
+            }
+            ITEM_TYPE_HEADER -> {
+                val view = LayoutInflater.from(parent.context)
+                        .inflate(R.layout.header_item, parent, false)
+                HeaderViewHolder(view)
+            }
+            else -> throw IllegalStateException()
+        }
     }
 
     override fun getItemCount(): Int = items.size
 
-    override fun onBindViewHolder(holder: MainAdapter.MainViewHolder, position: Int) {
+    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         val itemToShow = items[position]
-        holder.bind(itemToShow)
+
+        when(itemToShow){
+            is PokemonItem -> {
+                (holder as PokemonViewHolder).bind(itemToShow)
+            }
+            is HeaderItem -> {
+                (holder as HeaderViewHolder).bind(itemToShow)
+            }
+        }
     }
 
-    class MainViewHolder(view: View): RecyclerView.ViewHolder(view){
+    override fun getItemViewType(position: Int): Int {
+        return when(items[position]){
+            is PokemonItem -> ITEM_TYPE_POKEMON
+            is HeaderItem -> ITEM_TYPE_HEADER
+            else -> ITEM_TYPE_UNKNOWN
+        }
+    }
+
+    class PokemonViewHolder(view: View): RecyclerView.ViewHolder(view){
         private val textView = itemView.findViewById<TextView>(R.id.nameTv)
         private val imagePreview = itemView.findViewById<ImageView>(R.id.imagePreview)
 
-        fun bind(item: PokemonEntity){
+        fun bind(item: PokemonItem){
             textView.text = item.name
 
             Glide.with(itemView.context)
                 .load(item.imageUrl)
                 .into(imagePreview)
+        }
+    }
 
+    class HeaderViewHolder(view: View): RecyclerView.ViewHolder(view){
+        private val headerText = itemView.findViewById<TextView>(R.id.headerText)
+
+        fun bind(item: HeaderItem){
+            headerText.text = item.text
         }
     }
 }
