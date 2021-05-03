@@ -1,4 +1,4 @@
-package com.example.pokedex.presentation.adapter
+package com.example.pokedex.presentation.list.adapter
 
 import android.view.LayoutInflater
 import android.view.View
@@ -8,14 +8,15 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.pokedex.R
-import com.example.pokedex.domain.PokemonEntity
 import java.lang.IllegalStateException
 
 private const val ITEM_TYPE_UNKNOWN = 0
 private const val ITEM_TYPE_POKEMON = 1
 private const val ITEM_TYPE_HEADER = 2
 
-class MainAdapter: RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+class MainAdapter(
+    private val onItemClicked: (id: String) -> Unit
+): RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     private val items: MutableList<DisplayableItem> = emptyList<DisplayableItem>().toMutableList()
 
     fun setPokemonList(pokemons: List<DisplayableItem>){
@@ -28,8 +29,8 @@ class MainAdapter: RecyclerView.Adapter<RecyclerView.ViewHolder>() {
         return when(viewType) {
             ITEM_TYPE_POKEMON -> {
                 val view = LayoutInflater.from(parent.context)
-                        .inflate(R.layout.main_item, parent, false)
-                PokemonViewHolder(view)
+                        .inflate(R.layout.pokemon_item, parent, false)
+                PokemonViewHolder(view, onItemClicked)
             }
             ITEM_TYPE_HEADER -> {
                 val view = LayoutInflater.from(parent.context)
@@ -63,7 +64,7 @@ class MainAdapter: RecyclerView.Adapter<RecyclerView.ViewHolder>() {
         }
     }
 
-    class PokemonViewHolder(view: View): RecyclerView.ViewHolder(view){
+    class PokemonViewHolder(view: View, val onItemClicked: (id: String) -> Unit): RecyclerView.ViewHolder(view){
         private val textView = itemView.findViewById<TextView>(R.id.nameTv)
         private val imagePreview = itemView.findViewById<ImageView>(R.id.imagePreview)
 
@@ -73,6 +74,10 @@ class MainAdapter: RecyclerView.Adapter<RecyclerView.ViewHolder>() {
             Glide.with(itemView.context)
                 .load(item.imageUrl)
                 .into(imagePreview)
+
+            itemView.setOnClickListener {
+                onItemClicked(item.id)
+            }
         }
     }
 

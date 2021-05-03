@@ -42,6 +42,8 @@ data class PokemonPartialResponse(
 data class PokemonDetailedResponse(
     val id: String,
     val name: String,
+    val weight: Int,
+    val height: Int,
     val abilities: List<PokemonAbilityData>
 )
 

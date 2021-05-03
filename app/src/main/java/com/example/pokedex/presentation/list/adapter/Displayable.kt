@@ -1,4 +1,4 @@
-package com.example.pokedex.presentation.adapter
+package com.example.pokedex.presentation.list.adapter
 
 import com.example.pokedex.domain.PokemonEntity
 
