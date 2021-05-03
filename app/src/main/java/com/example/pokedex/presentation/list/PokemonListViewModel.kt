@@ -5,6 +5,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.pokedex.data.NetworkPokemonRepository
 import com.example.pokedex.data.network.createPokedexApiService
+import com.example.pokedex.di.Injector
 import com.example.pokedex.domain.PokemonRepository
 import com.example.pokedex.presentation.list.adapter.toItem
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -12,10 +13,7 @@ import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 
 class PokemonListViewModel : ViewModel() {
-    private val repository: PokemonRepository = NetworkPokemonRepository(
-        api = createPokedexApiService()
-    )
-
+    private val repository = Injector.providePokemonRepository()
     private var disposable: Disposable? = null
 
     private val _viewStateLiveData = MutableLiveData<PokemonListViewState>()
